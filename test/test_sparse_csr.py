@@ -49,6 +49,7 @@ from torch.testing._internal.common_methods_invocations import (
 )
 from torch.testing._internal.common_utils import (
     coalescedonoff,
+    HardwareClassification,
     IS_FBCODE,
     IS_LINUX,
     IS_REMOTE_GPU,
@@ -178,6 +179,7 @@ def _test_addmm_addmv(
 
 
 class TestSparseCSRSampler(TestCase):
+    hw_classification = HardwareClassification.GENERIC
 
     def test_make_crow_indices(self):
         # Here we test the correctness of the crow_indices algorithm
