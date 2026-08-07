@@ -308,7 +308,7 @@ class TestSparseCompressedDevice(TestCase):
     def test_sparse_compressed_constructor(self, layout, device, dtype,
                                            use_factory_function, shape_and_device_inference, input_kind):
         if input_kind == 'list' and shape_and_device_inference:
-            if torch.device(device).type == 'cuda':
+            if torch.device(device).type != 'cpu':
                 # list inputs to factory/constructor function without
                 # specifying device will result a sparse compressed tensor
                 # on CPU. So, skip testing against cuda device as unused.
@@ -317,8 +317,8 @@ class TestSparseCompressedDevice(TestCase):
                 self.skipTest("dtype not supported with list values")
 
         expected_devices = [torch.device(device)]
-        if TEST_CUDA and torch.device(device).type == 'cuda' and torch.cuda.device_count() >= 2 and not shape_and_device_inference:
-            expected_devices.append(torch.device('cuda:1'))
+        if torch.device(device).type != 'cpu' and torch.accelerator.device_count() >= 2 and not shape_and_device_inference:
+            expected_devices.append(torch.device(f'{torch.device(device).type}:1'))
 
         factory_function = {
             torch.sparse_csr: torch.sparse_csr_tensor,
