@@ -550,7 +550,10 @@ def _group_quantize_tensor(w, n_bit=4, q_group_size=16):
         raise AssertionError("out contains NaN values")
 
     out = out.to(dtype=torch.int32).reshape(w.shape)
-    if out.device != torch.device("cpu"):
+    # The cpu uses big endian while the xpu uses little endian
+    if out.device.type == "xpu":
+        out = (out[::, 1::2] << 4 | out[::, ::2]).to(torch.uint8)
+    elif out.device != torch.device("cpu"):
         out = (out[::, ::2] << 4 | out[::, 1::2]).to(torch.uint8)
 
     # Scales and zeros for the same q-group should be contiguous, so we can
